@@ -1,0 +1,60 @@
+﻿// Render texture version.
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Structured Buffer version.
+#pragma kernel Multiply
+
+// Create a RenderTexture with enableRandomWrite flag and set it with cs.SetTexture
+RWTexture2D<float4> Result;
+
+float _SinTime;
+float _Wavelength;
+
+struct VecMatPair {
+	float3 pos;
+	float4x4 mat;
+};
+
+RWStructuredBuffer<VecMatPair> dataBuffer;
+
+[numthreads(16,1,1)]
+void Multiply(uint3 id : SV_DispatchThreadID) {
+
+	// Oscillate from 0 to 1. 
+	float sin = (_SinTime + 1) * .5;
+
+	// Oscillate from 0 to maxY. 
+	float maxY = .24; // This is a trial and error estimate rn.
+	float sinY = sin * maxY;
+
+	// Store where we are on the mesh.
+	float y = dataBuffer[id.x].pos.y;
+
+	float aboveMin = sign(y - sinY); // +1 if we are above sinY, -1 if we are below.
+	float belowMax = sign(sinY + _Wavelength - y); // +1 if we are below sinY + _Wavelength, -1 if we are below.
+
+	float inRange = aboveMin + belowMax; // Possible outcomes: -2, 0, 2.
+	inRange = (inRange + 2) * .25; // Possible outcomes: 0, .5, 1.
+	inRange = floor(inRange); // Possible outcomes: 0, 1.
+
+	float offset = .5 * sin; // (y - sinY) / (_Wavelength / 2);
+
+	// If we're inRange, multiply offset by 1.  Else, multiply offset by 0;
+	float val = 1 + inRange * offset;
+
+	float3 newPos = float3 (val * dataBuffer[id.x].pos.x, dataBuffer[id.x].pos.y, val * dataBuffer[id.x].pos.z);
+
+	dataBuffer[id.x].pos = mul(dataBuffer[id.x].mat,
+		float4(newPos, 1.0));
+}
+
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	float val = (_SinTime + 1) * .5;
+	val += id.x * .05;
+	val = fmod(val, 1);
+	Result[id.xy] = float4(val, val, val, 1.0);
+}

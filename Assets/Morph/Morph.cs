@@ -22,13 +22,13 @@ public class Morph : MonoBehaviour {
     {
         
         InitStructuredBuffer ( );
-        InitRendTex ( );
+        //InitRendTex ( );
     }
 
     private void Update ( )
     {
         UpdateStructuredBuffer ( );
-        UpdateRendTex ( );
+        //UpdateRendTex ( );
     }
 
     void InitStructuredBuffer ( )
@@ -46,15 +46,17 @@ public class Morph : MonoBehaviour {
         while ( i < vertices.Length )
         {
             data [ i ].point = vertices [ i ];
-            data [ i ].matrix = transform.localToWorldMatrix;
+            data [ i ].matrix = transform.worldToLocalMatrix;
 
             output [ i ].point = vertices [ i ];
-            output [ i ].matrix = transform.worldToLocalMatrix;
+            output [ i ].matrix = transform.localToWorldMatrix;
 
             i++;
         }
 
         buffer = new ComputeBuffer ( vertices.Length, 76 );
+
+        shader.SetFloat ( "_Wavelength", 0.01f );
     }
 
     void UpdateStructuredBuffer ( )
@@ -76,7 +78,7 @@ public class Morph : MonoBehaviour {
         int i = 0;
         while ( i < vertices.Length )
         {
-            vertices [ i ] = output [ i ].point;
+            vertices [ i ] = transform.localRotation * output [ i ].point + transform.localPosition;
             i++;
         }
 
