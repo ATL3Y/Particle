@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Morph : MonoBehaviour {
+public class Morph : MonoBehaviour
+{
 
     // Structured Buffer version vars.
     struct VectMatPair
@@ -20,7 +21,7 @@ public class Morph : MonoBehaviour {
 
     private void Start ( )
     {
-        
+
         InitStructuredBuffer ( );
         //InitRendTex ( );
     }
