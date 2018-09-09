@@ -14,7 +14,7 @@ public class Run_Particle_Storm : MonoBehaviour
         public float life;
     }
     private const int SIZE_PARTICLE = 28;
-    private int particleCount = 1000000;
+    private int particleCount = 900;
     public Material material;
     public ComputeShader computeShader;
     private int mComputeShaderKernelID;
@@ -67,14 +67,16 @@ public class Run_Particle_Storm : MonoBehaviour
         // bind the compute buffer to the shader and the compute shader
         computeShader.SetBuffer ( mComputeShaderKernelID, "particleStormBuffer", particleBuffer );
         material.SetBuffer ( "particleStormBuffer", particleBuffer );
+
     }
 
     void OnRenderObject ( )
     {
         material.SetPass ( 0 );
-        //Graphics.DrawProcedural ( MeshTopology.Points, 1, particleCount );
-        // TO DO: Draw quads somehow 
-        Graphics.DrawProcedural ( MeshTopology.Triangles, particleCount);
+        // Graphics.DrawProcedural ( MeshTopology.Points, 1, particleCount );
+        // TO DO: Draw quads somehow
+        int triCount = Mathf.FloorToInt(particleCount / 3); 
+        Graphics.DrawProcedural ( MeshTopology.Triangles, triCount, 1);
     }
 
     void OnDestroy ( )

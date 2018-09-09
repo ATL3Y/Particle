@@ -22,7 +22,7 @@ public class ProceduralGeometry : MonoBehaviour
         n = mesh.triangles.Length;
         Point[] points = new Point[n];
 
-        // Use this to build triangles. 
+        // Use this to build triangles. You could take the verts instead of triangles?
         for ( int i = 0; i < n; ++i )
         {
             points [ i ].vertex = mesh.vertices [ mesh.triangles [ i ] ];
